@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¿Cuestión de Suerte?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+  <link rel="stylesheet" href="estilos.css">
+</head>
+<body>
+
+<!-- ══ BARRA DE PROGRESO ══ -->
+<div id="progress-bar"></div>
+
+<!-- ══ CAMINO FIJO DE FONDO ══ -->
+<div id="road-bg"></div>
+
+<!-- ══ PERSONAJES FIJOS (sin género revelado) ══ -->
+<div id="contenedor-personajes">
+  <div id="personajeA" class="personaje">
+    <canvas class="char-canvas" id="canvasA" width="40" height="60"></canvas>
+    <div class="vida-bar" id="vidaA">
+      <span class="corazon">♥</span><span class="corazon">♥</span><span class="corazon">♥</span><span class="corazon">♥</span><span class="corazon">♥</span>
+    </div>
+    <span class="label-personaje label-j1">JUGADOR 1</span>
+  </div>
+  <div id="personajeB" class="personaje">
+    <canvas class="char-canvas" id="canvasB" width="40" height="60"></canvas>
+    <div class="vida-bar" id="vidaB">
+      <span class="corazon corazon-j2">♥</span><span class="corazon corazon-j2">♥</span><span class="corazon corazon-j2">♥</span><span class="corazon corazon-j2">♥</span><span class="corazon corazon-j2">♥</span>
+    </div>
+    <span class="label-personaje label-j2">JUGADOR 2</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     ESCENA 1: PANTALLA DE INICIO
+══════════════════════════════════════════════════════ -->
+<section class="escena escena-inicio" id="inicio">
+  <div class="pixel-sky"></div>
+  <div class="pixel-title-box reveal-on-scroll">
+    <h1 class="pixel-title">¿Cuestión<br>de Suerte?</h1>
+    <button class="start-btn blink" id="btn-start">▶ START</button>
+    <p class="scroll-hint">SCROLL HACIA ABAJO ↓</p>
+  </div>
+  <div class="pixel-ground"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     ESCENA 2: PRESENTACIÓN — DOS PERSONAS
+══════════════════════════════════════════════════════ -->
+<section class="escena escena-road" id="presentacion">
+  <div class="escena-content">
+    <div class="pixel-sign reveal-on-scroll">
+      <p class="sign-tag">NUESTRA HISTORIA</p>
+      <p>Dos personas recorren el mismo camino enfrentando situaciones cotidianas.</p>
+      <p style="margin-top:12px">A medida que avanzan, se enfrentan a distintos <strong>eventos relacionados con su salud y riesgo.</strong></p>
+    </div>
+  </div>
+  <div class="pixel-ground"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     ESCENA 3: SUCESO — ENFERMEDAD CARDÍACA
+══════════════════════════════════════════════════════ -->
+<section class="escena escena-corazon" id="corazon">
+  <div class="escena-content">
+    <div class="evento-icono reveal-on-scroll">❤️</div>
+    <h2 class="pixel-h2 reveal-on-scroll">ENFERMEDAD<br>CARDÍACA</h2>
+    <div class="stat-box reveal-on-scroll delay-1">
+      <p>Los jugadores padecen de una <span class="highlight">enfermedad cardíaca.</span></p>
+    </div>
+    <div class="stat-box stat-box-alert reveal-on-scroll delay-2">
+      <p>El <span class="txt-j1">Jugador 1</span> tiene un <span class="highlight">50% más</span> de probabilidades de recibir un <span class="highlight">diagnóstico inicial erróneo</span> tras un ataque al corazón.</p>
+    </div>
+    <div class="corazon-perdido reveal-on-scroll delay-3" id="heartLoss1">
+      <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Jugador 1)</span>
+    </div>
+  </div>
+  <div class="pixel-ground"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     ESCENA 4: SUCESO — MEDICAMENTOS
+══════════════════════════════════════════════════════ -->
+<section class="escena escena-pocion" id="pocion">
+  <div class="escena-content">
+    <div class="evento-icono reveal-on-scroll">💊</div>
+    <h2 class="pixel-h2 reveal-on-scroll">POCIÓN<br>DE VIDA</h2>
+    <div class="stat-box reveal-on-scroll delay-1">
+      <p>Ambos jugadores toman un medicamento recetado.<br>El <span class="txt-j1">Jugador 1</span> se siente mal...</p>
+    </div>
+    <div class="stat-box stat-box-alert reveal-on-scroll delay-2">
+      <p><span class="highlight">Efectos adversos —</span><br>
+      El <span class="txt-j1">Jugador 1</span> tiene un <span class="highlight">+50% de probabilidad</span> de sufrir efectos adversos por medicamentos/pociones.</p>
+    </div>
+    <div class="corazon-perdido reveal-on-scroll delay-3">
+      <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Jugador 1)</span>
+    </div>
+  </div>
+  <div class="pixel-ground"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     ESCENA 5: SUCESO — AUTISMO (mini‑juego)
+══════════════════════════════════════════════════════ -->
+<section class="escena escena-autismo" id="autismo">
+  <div class="escena-content">
+    <div class="evento-icono reveal-on-scroll">🧠</div>
+    <div class="game-badge reveal-on-scroll">🎮 ES MOMENTO DE UN JUEGO</div>
+    <h2 class="pixel-h2 reveal-on-scroll">¡ENCUENTRA<br>A LOS JUGADORES!</h2>
+
+    <!-- Mini‑juego: encontrar los personajes entre iconos -->
+    <div class="minigame-area reveal-on-scroll delay-1" id="minijuego">
+      <p class="mini-instruccion">Toca a los dos jugadores entre los íconos</p>
+      <div class="mini-grid" id="miniGrid"></div>
+      <p class="mini-resultado" id="miniResultado"></p>
+    </div>
+
+    <div class="stat-box stat-box-alert reveal-on-scroll delay-2" id="stat-autismo" style="display:none">
+      <p>Fue <span class="highlight">4 veces más difícil</span> diagnosticar con <span class="highlight">autismo</span> al <span class="txt-j1">Jugador 1</span> que al <span class="txt-j2">Jugador 2</span>.</p>
+      <p class="sub-text">Ambos jugadores están en el espectro autista.</p>
+    </div>
+    <div class="corazon-perdido reveal-on-scroll delay-3" id="heartLoss3" style="display:none">
+      <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Jugador 1)</span>
+    </div>
+  </div>
+  <div class="pixel-ground"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     ESCENA 6: SUCESO — ACCIDENTE DE AUTO
+══════════════════════════════════════════════════════ -->
+<section class="escena escena-accidente" id="accidente">
+  <div class="escena-content">
+    <div class="evento-icono reveal-on-scroll">🚗</div>
+    <h2 class="pixel-h2 reveal-on-scroll">ACCIDENTE<br>DE AUTO</h2>
+    <div class="stat-box reveal-on-scroll delay-1">
+      <p>Ambos jugadores sufren un accidente mientras conducen, con el cinturón puesto.</p>
+    </div>
+    <div class="stat-box stat-box-alert reveal-on-scroll delay-2">
+      <p>El <span class="txt-j1">Jugador 1</span> tiene <span class="highlight">27% más</span> probabilidades de sufrir una <span class="highlight">lesión grave o morir</span> en un choque de auto.</p>
+    </div>
+    <div class="corazon-perdido reveal-on-scroll delay-3">
+      <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Jugador 1)</span>
+    </div>
+  </div>
+  <div class="pixel-ground"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     ESCENA 7: PREGUNTA INTERACTIVA
+══════════════════════════════════════════════════════ -->
+<section class="escena escena-reveal" id="reveal">
+  <div class="escena-content">
+    <h2 class="pixel-h2 reveal-on-scroll">Ambos jugadores<br>se ven similares...</h2>
+    <p class="pregunta reveal-on-scroll delay-1">¿Por qué al <span class="txt-j1">Jugador 1</span><br>le va peor?</p>
+
+    <!-- Opciones interactivas — scroll bloqueado hasta responder -->
+    <div class="opciones reveal-on-scroll delay-2" id="opciones-container">
+      <button class="opcion" data-valor="edad">su edad</button>
+      <button class="opcion" data-valor="genero">su género</button>
+      <button class="opcion" data-valor="suerte">su suerte</button>
+    </div>
+
+    <!-- Feedback después de responder -->
+    <div class="feedback-box" id="feedback-box" style="display:none">
+      <p id="feedback-texto"></p>
+      <button class="pixel-btn-small" id="btn-continuar">CONTINUAR →</button>
+    </div>
+  </div>
+  <div class="pixel-ground"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     ESCENA 8: REVELACIÓN DE GÉNERO
+══════════════════════════════════════════════════════ -->
+<section class="escena escena-gender-reveal" id="gender-reveal">
+  <div class="escena-content">
+    <div class="reveal-symbol reveal-on-scroll">⚧</div>
+    <h2 class="pixel-h2 reveal-on-scroll">La diferencia era...</h2>
+    <div class="gender-card reveal-on-scroll delay-1" id="gender-card">
+      <div class="gender-icon">♀</div>
+      <p class="gender-text">...su <strong>género</strong></p>
+      <p class="gender-sub">El Jugador 1 era una <strong>MUJER</strong></p>
+    </div>
+    <div class="no-suerte reveal-on-scroll delay-2">
+      <p class="no-suerte-texto">No es suerte,</p>
+      <p class="no-suerte-sesgo">es <span class="sesgo-word">sesgo</span></p>
+    </div>
+  </div>
+  <div class="pixel-ground"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     DATOS 1: ENFERMEDAD CARDÍACA
+══════════════════════════════════════════════════════ -->
+<section class="data-section" id="data-corazon">
+  <div class="data-inner">
+    <div class="data-header">
+      <span class="data-eyebrow">▸ DATOS / ENFERMEDAD CARDÍACA</span>
+      <span class="dato-mujer-tag">♀ MUJER</span>
+    </div>
+    <h2 class="data-title">Una mujer tiene un <span class="highlight-data">50% más</span> de probabilidades de recibir un diagnóstico erróneo tras un ataque al corazón</h2>
+
+    <div class="cards-pair">
+      <div class="vcard vcard-hombre">
+        <div class="vcard-label">HOMBRE</div>
+        <div class="vcard-line">Tasa de diagnóstico correcto</div>
+        <div class="vcard-num" id="count-h">0%</div>
+        <div class="vcard-sub">de los hombres recibe diagnóstico correcto</div>
+      </div>
+      <div class="vs-sep">vs</div>
+      <div class="vcard vcard-mujer">
+        <div class="vcard-label">MUJER</div>
+        <div class="vcard-line">Tasa de diagnóstico correcto</div>
+        <div class="vcard-num" id="count-f">0%</div>
+        <div class="vcard-sub">de las mujeres con enfermedad cardíaca confirmada no presentan el dolor "clásico" al diagnóstico</div>
+      </div>
+    </div>
+
+    <div class="data-callout">
+      <p>El 98% de las mujeres con enfermedad cardíaca confirmada <strong>no presentaban el dolor "clásico"</strong> en el momento del diagnóstico — sus síntomas son diferentes y la medicina fue diseñada en base a cuerpos masculinos.</p>
+    </div>
+    <p class="data-source">Fuente: Heart Failure Prediction Dataset — Switzerland, Hungary and US</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     DATOS 2: MEDICAMENTOS
+══════════════════════════════════════════════════════ -->
+<section class="data-section" id="data-efectos">
+  <div class="data-inner">
+    <div class="data-header">
+      <span class="data-eyebrow">▸ DATOS / EFECTOS ADVERSOS</span>
+      <span class="dato-mujer-tag">♀ MUJER</span>
+    </div>
+    <h2 class="data-title">Una mujer tiene un <span class="highlight-data">50% más</span> de probabilidad de sufrir efectos adversos a medicamentos recetados</h2>
+
+    <p class="description-data">Cada figura = una persona de 100. Las figuras <span style="color:var(--red-bright)">rojas</span> sufrieron efectos adversos.</p>
+    <div class="grids-wrapper-data">
+      <div class="grid-column">
+        <div class="col-label col-m">Hombres</div>
+        <div class="person-grid" id="maleGridEfectos"></div>
+        <div class="grid-counter">
+          <span class="big-count" id="maleCountEfectos" style="color:var(--gray-light)">0</span>
+          <span class="count-label">de cada 100<br>efectos adversos</span>
+        </div>
+      </div>
+      <div class="grid-column">
+        <div class="col-label col-f">Mujeres</div>
+        <div class="person-grid" id="femaleGridEfectos"></div>
+        <div class="grid-counter">
+          <span class="big-count" id="femaleCountEfectos" style="color:var(--red-bright)">0</span>
+          <span class="count-label">de cada 100<br>efectos adversos</span>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot ok"></div>Sin efectos adversos</div>
+      <div class="legend-item"><div class="legend-dot injured"></div>Efectos adversos</div>
+    </div>
+    <p class="data-source">Fuente: FDA Adverse Event Monitoring (US Food and Drugs Administration) 1968-2026</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     DATOS 3: AUTISMO
+══════════════════════════════════════════════════════ -->
+<section class="data-section" id="data-autismo">
+  <div class="data-inner">
+    <div class="data-header">
+      <span class="data-eyebrow">▸ DATOS / AUTISMO</span>
+      <span class="dato-mujer-tag">♀ MUJER</span>
+    </div>
+    <h2 class="data-title">Es <span class="highlight-data">4 veces más difícil</span> diagnosticar el autismo en una mujer que en un hombre</h2>
+
+    <div class="info-box">
+      <p>El ratio de <strong>4 hombres diagnosticados por cada mujer</strong> no es una realidad biológica: es el resultado de una medicina construida con criterios masculinos. Las primeras descripciones clínicas de Kanner (1943) y Asperger (1944) se basaron casi exclusivamente en niños.</p>
+    </div>
+
+    <div class="stats-row-data">
+      <div class="stat-card"><span class="stat-n-big" style="color:var(--purple)">4:1</span><span class="stat-lbl">ratio H:M en diagnósticos</span></div>
+      <div class="stat-card"><span class="stat-n-big" style="color:var(--red-bright)">50%</span><span class="stat-lbl">mujeres autistas sin diagnóstico formal</span></div>
+    </div>
+
+    <div class="chart-card-data">
+      <p class="chart-label-data">Proporción de diagnósticos por género — por década</p>
+      <div style="height:240px; position:relative;">
+        <canvas id="chartAutismo"></canvas>
+      </div>
+    </div>
+    <p class="data-source">Fuentes: Loomes, Hull & Mandy (2017) — Meta-análisis 139 estudios · CDC Autism Data 2022</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     DATOS 4: ACCIDENTE DE AUTO
+══════════════════════════════════════════════════════ -->
+<section class="data-section" id="data-accidente">
+  <div class="data-inner">
+    <div class="data-header">
+      <span class="data-eyebrow">▸ DATOS / ACCIDENTE DE AUTO</span>
+      <span class="dato-mujer-tag">♀ MUJER</span>
+    </div>
+    <h2 class="data-title">Una mujer tiene <span class="highlight-data">27% más</span> probabilidades de sufrir una lesión grave o morir en un accidente de auto</h2>
+
+    <div class="car-scene" id="carScene">
+      <div class="road">
+        <div class="road-line"></div><div class="road-line"></div>
+        <div class="road-line"></div><div class="road-line"></div>
+      </div>
+      <div class="car-wrapper" id="carWrapper">
+        <svg class="pixel-car" width="120" height="60" viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="25" width="100" height="25" fill="#374151"/>
+          <rect x="28" y="10" width="64" height="20" fill="#4b5563"/>
+          <rect x="34" y="14" width="22" height="12" fill="#7dd3fc" opacity="0.8"/>
+          <rect x="62" y="14" width="22" height="12" fill="#7dd3fc" opacity="0.8"/>
+          <rect x="15" y="44" width="18" height="16" fill="#111827" rx="3"/>
+          <rect x="87" y="44" width="18" height="16" fill="#111827" rx="3"/>
+          <rect x="107" y="30" width="7" height="8" fill="#fbbf24"/>
+          <rect x="6"   y="30" width="7" height="8" fill="#e5e7eb"/>
+        </svg>
+        <div class="spark" id="s1" style="left:55px;top:10px;--dx:-20px;--dy:-25px;"></div>
+        <div class="spark" id="s2" style="left:60px;top:5px;--dx:15px;--dy:-30px;background:#ef4444;"></div>
+        <div class="spark" id="s3" style="left:50px;top:15px;--dx:-30px;--dy:-15px;background:#f97316;"></div>
+        <div class="spark" id="s4" style="left:65px;top:8px;--dx:25px;--dy:-20px;"></div>
+      </div>
+    </div>
+
+    <p class="description-data">Cada figura = una persona en un accidente de auto con cinturón puesto.<br>
+    Las figuras <span style="color:var(--red-bright)">rojas</span> sufrieron lesión grave o murieron.</p>
+    <div class="grids-wrapper-data">
+      <div class="grid-column">
+        <div class="col-label col-m">Hombres</div>
+        <div class="person-grid" id="maleGrid"></div>
+        <div class="grid-counter">
+          <span class="big-count" id="maleCount" style="color:var(--gray-light)">0</span>
+          <span class="count-label">de cada 100<br>lesión grave / muerte</span>
+        </div>
+      </div>
+      <div class="grid-column">
+        <div class="col-label col-f">Mujeres</div>
+        <div class="person-grid" id="femaleGrid"></div>
+        <div class="grid-counter">
+          <span class="big-count" id="femaleCount" style="color:var(--red-bright)">0</span>
+          <span class="count-label">de cada 100<br>lesión grave / muerte</span>
+        </div>
+      </div>
+    </div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot ok"></div>Sin lesión grave</div>
+      <div class="legend-item"><div class="legend-dot injured"></div>Lesión grave o muerte</div>
+    </div>
+    <div class="data-callout">
+      <p>Los maniquíes de prueba de choque se basaron históricamente en cuerpos masculinos. Una <strong>mujer</strong> tiene <strong>27% más probabilidades</strong> de sufrir una lesión grave o morir en las mismas condiciones.</p>
+    </div>
+    <button class="play-btn" onclick="runAnimAuto()">↺ REPETIR</button>
+    <p class="data-source">Fuente: NHTSA Fatality Analysis Reporting System (FARS) 2024</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     ESCENA FINAL
+══════════════════════════════════════════════════════ -->
+<section class="escena escena-final" id="final">
+  <div class="escena-content">
+    <h1 class="final-question reveal-on-scroll">¿Cómo influyen los sesgos de género en los riesgos y resultados en salud, incluso cuando hombres y mujeres viven experiencias similares?</h1>
+
+    <div class="datos-finales reveal-on-scroll delay-1">
+      <div class="dato-item">
+        <span class="dato-icon">❤️</span>
+        <p>Una mujer tiene un <strong>50% más</strong> de probabilidades de recibir un diagnóstico erróneo tras un ataque al corazón.</p>
+      </div>
+      <div class="dato-item">
+        <span class="dato-icon">💊</span>
+        <p>Una mujer tiene un <strong>50% más</strong> de probabilidad de sufrir efectos adversos a medicamentos.</p>
+      </div>
+      <div class="dato-item">
+        <span class="dato-icon">🧠</span>
+        <p>Es <strong>4 veces más difícil</strong> diagnosticar el autismo en una mujer que en un hombre.</p>
+      </div>
+      <div class="dato-item">
+        <span class="dato-icon">🚗</span>
+        <p>Una mujer tiene <strong>27% más</strong> probabilidades de sufrir una lesión grave en un accidente de auto.</p>
+      </div>
+    </div>
+
+    <div class="btn-group reveal-on-scroll delay-2">
+      <a href="#inicio" class="pixel-btn">▶ JUGAR DE NUEVO</a>
+    </div>
+    <div class="fin-text reveal-on-scroll delay-3">FIN.</div>
+
+    <p class="creditos reveal-on-scroll delay-3">
+      Francisca Sepúlveda · Lilas Taillandier · Victor Lauret · Rosario Otarola · Sofía Rojas<br>
+      IDI1015-1 · Prof. Catalina Cortázar
+    </p>
+  </div>
+</section>
+
+<!-- SVG defs para personajes -->
+<svg style="display:none">
+  <defs>
+    <!-- Jugador genérico (antes del reveal) -->
+    <g id="char-generic-blue">
+      <!-- cabeza -->
+      <rect x="10" y="2"  width="20" height="18" rx="2" fill="#9ca3af"/>
+      <rect x="14" y="8"  width="4"  height="4"  fill="#1f2937"/>
+      <rect x="22" y="8"  width="4"  height="4"  fill="#1f2937"/>
+      <rect x="14" y="14" width="12" height="2"  fill="#6b7280"/>
+      <!-- body -->
+      <rect x="8"  y="22" width="24" height="16" rx="2" fill="#3b82f6"/>
+      <!-- arms -->
+      <rect x="2"  y="22" width="6"  height="12" rx="1" fill="#3b82f6"/>
+      <rect x="32" y="22" width="6"  height="12" rx="1" fill="#3b82f6"/>
+      <!-- legs -->
+      <rect x="10" y="40" width="8"  height="14" rx="1" fill="#1d4ed8"/>
+      <rect x="22" y="40" width="8"  height="14" rx="1" fill="#1d4ed8"/>
+      <!-- shoes -->
+      <rect x="9"  y="52" width="10" height="6"  rx="1" fill="#111827"/>
+      <rect x="21" y="52" width="10" height="6"  rx="1" fill="#111827"/>
+    </g>
+    <!-- Jugador 1 revelado — MUJER (ropa lila/rosa) -->
+    <g id="char-female">
+      <rect x="10" y="2"  width="20" height="18" rx="2" fill="#fbbf24"/>
+      <!-- pelo largo -->
+      <rect x="6"  y="4"  width="4"  height="24" rx="1" fill="#7c3aed"/>
+      <rect x="30" y="4"  width="4"  height="24" rx="1" fill="#7c3aed"/>
+      <rect x="10" y="20" width="20" height="6"  rx="1" fill="#7c3aed"/>
+      <!-- ojos -->
+      <rect x="14" y="8"  width="4"  height="4"  fill="#1f2937"/>
+      <rect x="22" y="8"  width="4"  height="4"  fill="#1f2937"/>
+      <!-- boca -->
+      <rect x="15" y="15" width="10" height="2"  fill="#ef4444"/>
+      <!-- body (vestido) -->
+      <rect x="6"  y="22" width="28" height="20" rx="2" fill="#c026d3"/>
+      <!-- arms -->
+      <rect x="0"  y="22" width="6"  height="10" rx="1" fill="#c026d3"/>
+      <rect x="34" y="22" width="6"  height="10" rx="1" fill="#c026d3"/>
+      <!-- legs -->
+      <rect x="10" y="42" width="8"  height="12" rx="1" fill="#7c3aed"/>
+      <rect x="22" y="42" width="8"  height="12" rx="1" fill="#7c3aed"/>
+      <rect x="9"  y="52" width="10" height="6"  rx="1" fill="#111827"/>
+      <rect x="21" y="52" width="10" height="6"  rx="1" fill="#111827"/>
+    </g>
+    <!-- Jugador 2 revelado — HOMBRE (ropa verde) -->
+    <g id="char-male">
+      <rect x="10" y="2"  width="20" height="18" rx="2" fill="#9ca3af"/>
+      <rect x="14" y="8"  width="4"  height="4"  fill="#1f2937"/>
+      <rect x="22" y="8"  width="4"  height="4"  fill="#1f2937"/>
+      <rect x="14" y="14" width="12" height="2"  fill="#6b7280"/>
+      <rect x="8"  y="22" width="24" height="16" rx="2" fill="#16a34a"/>
+      <rect x="2"  y="22" width="6"  height="12" rx="1" fill="#16a34a"/>
+      <rect x="32" y="22" width="6"  height="12" rx="1" fill="#16a34a"/>
+      <rect x="10" y="40" width="8"  height="14" rx="1" fill="#15803d"/>
+      <rect x="22" y="40" width="8"  height="14" rx="1" fill="#15803d"/>
+      <rect x="9"  y="52" width="10" height="6"  rx="1" fill="#111827"/>
+      <rect x="21" y="52" width="10" height="6"  rx="1" fill="#111827"/>
+    </g>
+    <!-- versión dañada jugador 1 -->
+    <g id="char-hurt">
+      <rect x="10" y="2"  width="20" height="18" rx="2" fill="#9ca3af"/>
+      <rect x="12" y="8"  width="5"  height="3"  fill="#1f2937" transform="rotate(-15 14 10)"/>
+      <rect x="23" y="8"  width="5"  height="3"  fill="#1f2937" transform="rotate(15 25 10)"/>
+      <rect x="14" y="14" width="12" height="2"  fill="#6b7280" transform="rotate(5 20 15)"/>
+      <rect x="8"  y="22" width="24" height="16" rx="2" fill="#3b82f6" opacity="0.7"/>
+      <rect x="2"  y="22" width="6"  height="12" rx="1" fill="#3b82f6" opacity="0.7"/>
+      <rect x="32" y="22" width="6"  height="12" rx="1" fill="#3b82f6" opacity="0.7"/>
+      <rect x="10" y="40" width="8"  height="14" rx="1" fill="#1d4ed8"/>
+      <rect x="22" y="40" width="8"  height="14" rx="1" fill="#1d4ed8"/>
+      <rect x="9"  y="52" width="10" height="6"  rx="1" fill="#111827"/>
+      <rect x="21" y="52" width="10" height="6"  rx="1" fill="#111827"/>
+      <!-- signos de daño -->
+      <text x="6" y="20" font-size="10" fill="#ef4444">★</text>
+    </g>
+  </defs>
+</svg>
+
+<script src="script.js"></script>
+</body>
+</html>
