@@ -69,12 +69,30 @@
     <div class="evento-icono reveal-on-scroll">❤️</div>
     <h2 class="pixel-h2 reveal-on-scroll">ENFERMEDAD<br>CARDÍACA</h2>
     <div class="stat-box reveal-on-scroll delay-1">
-      <p>Los jugadores padecen de una <span class="highlight">enfermedad cardíaca.</span></p>
+      <p>Ambos jugadores tienen síntomas cardíacos. Elige a quién examinar.</p>
     </div>
-    <div class="stat-box stat-box-alert reveal-on-scroll delay-2">
-      <p>El <span class="txt-j1">Jugador 1</span> tiene un <span class="highlight">50% más</span> de probabilidades de recibir un <span class="highlight">diagnóstico inicial erróneo</span> tras un ataque al corazón.</p>
+
+    <div class="heart-quiz reveal-on-scroll delay-2" id="heartQuiz">
+      <div class="heart-choice-row" id="heartChoiceRow">
+        <button class="heart-player-card" data-heart-player="A">
+          <span class="heart-player-label txt-j1">JUGADOR 1</span>
+          <span class="heart-player-action">Examinar</span>
+        </button>
+        <button class="heart-player-card" data-heart-player="B">
+          <span class="heart-player-label txt-j2">JUGADOR 2</span>
+          <span class="heart-player-action">Examinar</span>
+        </button>
+      </div>
+
+      <div class="heart-panel" id="heartPanel" hidden>
+        <p class="heart-question" id="heartQuestion">¿Cuáles de estos síntomas presenta este jugador?</p>
+        <div class="symptom-list" id="symptomList"></div>
+        <button class="pixel-btn-small" id="btnDiagnoseHeart">DIAGNOSTICAR</button>
+        <div class="diagnosis-card" id="diagnosisCard" hidden></div>
+      </div>
     </div>
-    <div class="corazon-perdido reveal-on-scroll delay-3" id="heartLoss1">
+
+    <div class="corazon-perdido reveal-on-scroll delay-3" id="heartLoss1" hidden>
       <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Jugador 1)</span>
     </div>
   </div>
@@ -103,7 +121,7 @@
 </section>
 
 <!-- ══════════════════════════════════════════════════════
-     ESCENA 5: SUCESO — AUTISMO (mini‑juego)
+     ESCENA 5: SUCESO — AUTISMO (mini-juego)
 ══════════════════════════════════════════════════════ -->
 <section class="escena escena-autismo" id="autismo">
   <div class="escena-content">
@@ -111,7 +129,6 @@
     <div class="game-badge reveal-on-scroll">🎮 ES MOMENTO DE UN JUEGO</div>
     <h2 class="pixel-h2 reveal-on-scroll">¡ENCUENTRA<br>A LOS JUGADORES!</h2>
 
-    <!-- Mini‑juego: encontrar los personajes entre iconos -->
     <div class="minigame-area reveal-on-scroll delay-1" id="minijuego">
       <p class="mini-instruccion">Toca a los dos jugadores entre los íconos</p>
       <div class="mini-grid" id="miniGrid"></div>
@@ -119,11 +136,8 @@
     </div>
 
     <div class="stat-box stat-box-alert reveal-on-scroll delay-2" id="stat-autismo" style="display:none">
-      <p>Fue <span class="highlight">4 veces más difícil</span> diagnosticar con <span class="highlight">autismo</span> al <span class="txt-j1">Jugador 1</span> que al <span class="txt-j2">Jugador 2</span>.</p>
-      <p class="sub-text">Ambos jugadores están en el espectro autista.</p>
-    </div>
-    <div class="corazon-perdido reveal-on-scroll delay-3" id="heartLoss3" style="display:none">
-      <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Jugador 1)</span>
+      <p>Fue <span class="highlight">4 veces más difícil</span> diagnosticar con autismo al <span class="txt-j1">Jugador 1</span> que al <span class="txt-j2">Jugador 2</span>.</p>
+      <p class="sub-text">Aquí no pierde una vida: pierde tiempo, seguimiento y reconocimiento.</p>
     </div>
   </div>
   <div class="pixel-ground"></div>
@@ -202,27 +216,24 @@
       <span class="data-eyebrow">▸ DATOS / ENFERMEDAD CARDÍACA</span>
       <span class="dato-mujer-tag">♀ MUJER</span>
     </div>
-    <h2 class="data-title">Una mujer tiene un <span class="highlight-data">50% más</span> de probabilidades de recibir un diagnóstico erróneo tras un ataque al corazón</h2>
+    <h2 class="data-title">El problema no es solo estar enferma: es no ser reconocida como paciente cardíaca</h2>
 
-    <div class="cards-pair">
-      <div class="vcard vcard-hombre">
-        <div class="vcard-label">HOMBRE</div>
-        <div class="vcard-line">Tasa de diagnóstico correcto</div>
-        <div class="vcard-num" id="count-h">0%</div>
-        <div class="vcard-sub">de los hombres recibe diagnóstico correcto</div>
-      </div>
-      <div class="vs-sep">vs</div>
-      <div class="vcard vcard-mujer">
-        <div class="vcard-label">MUJER</div>
-        <div class="vcard-line">Tasa de diagnóstico correcto</div>
-        <div class="vcard-num" id="count-f">0%</div>
-        <div class="vcard-sub">de las mujeres con enfermedad cardíaca confirmada no presentan el dolor "clásico" al diagnóstico</div>
-      </div>
+    <div class="cardio-stat-grid">
+      <article class="cardio-stat-card">
+        <span class="cardio-stat-number">98 %</span>
+        <p>de las mujeres con enfermedad cardíaca no tenían el síntoma clásico que los médicos suelen buscar.</p>
+      </article>
+      <article class="cardio-stat-card">
+        <span class="cardio-stat-number">+29 %</span>
+        <p>de colesterol en mujeres: un riesgo objetivamente más alto, pero <strong>2,4x menos diagnosticadas</strong>.</p>
+      </article>
+      <article class="cardio-stat-card">
+        <span class="cardio-stat-number">70 %</span>
+        <p>de los pacientes de cardiología son hombres. Las mujeres ni siquiera llegan a la puerta.</p>
+      </article>
     </div>
 
-    <div class="data-callout">
-      <p>El 98% de las mujeres con enfermedad cardíaca confirmada <strong>no presentaban el dolor "clásico"</strong> en el momento del diagnóstico — sus síntomas son diferentes y la medicina fue diseñada en base a cuerpos masculinos.</p>
-    </div>
+    <p class="cardio-stat-closing">No es que las mujeres no se enfermen: muchas veces el sistema no las ve a tiempo.</p>
     <p class="data-source">Fuente: Heart Failure Prediction Dataset — Switzerland, Hungary and US</p>
   </div>
 </section>
@@ -238,11 +249,15 @@
     </div>
     <h2 class="data-title">Una mujer tiene un <span class="highlight-data">50% más</span> de probabilidad de sufrir efectos adversos a medicamentos recetados</h2>
 
-    <p class="description-data">Cada figura = una persona de 100. Las figuras <span style="color:var(--red-bright)">rojas</span> sufrieron efectos adversos.</p>
+    <p class="description-data">Cada bloque representa 1 persona de 100. Usa el slider para cambiar el año.</p>
+    <div class="waffle-control" data-waffle-control="efectos">
+      <span class="waffle-year" id="yearEfectos">2026</span>
+      <input class="waffle-slider" id="sliderEfectos" type="range" min="0" max="4" value="4" step="1">
+    </div>
     <div class="grids-wrapper-data">
       <div class="grid-column">
         <div class="col-label col-m">Hombres</div>
-        <div class="person-grid" id="maleGridEfectos"></div>
+        <div class="waffle-grid" id="maleGridEfectos"></div>
         <div class="grid-counter">
           <span class="big-count" id="maleCountEfectos" style="color:var(--gray-light)">0</span>
           <span class="count-label">de cada 100<br>efectos adversos</span>
@@ -250,7 +265,7 @@
       </div>
       <div class="grid-column">
         <div class="col-label col-f">Mujeres</div>
-        <div class="person-grid" id="femaleGridEfectos"></div>
+        <div class="waffle-grid" id="femaleGridEfectos"></div>
         <div class="grid-counter">
           <span class="big-count" id="femaleCountEfectos" style="color:var(--red-bright)">0</span>
           <span class="count-label">de cada 100<br>efectos adversos</span>
@@ -266,37 +281,7 @@
 </section>
 
 <!-- ══════════════════════════════════════════════════════
-     DATOS 3: AUTISMO
-══════════════════════════════════════════════════════ -->
-<section class="data-section" id="data-autismo">
-  <div class="data-inner">
-    <div class="data-header">
-      <span class="data-eyebrow">▸ DATOS / AUTISMO</span>
-      <span class="dato-mujer-tag">♀ MUJER</span>
-    </div>
-    <h2 class="data-title">Es <span class="highlight-data">4 veces más difícil</span> diagnosticar el autismo en una mujer que en un hombre</h2>
-
-    <div class="info-box">
-      <p>El ratio de <strong>4 hombres diagnosticados por cada mujer</strong> no es una realidad biológica: es el resultado de una medicina construida con criterios masculinos. Las primeras descripciones clínicas de Kanner (1943) y Asperger (1944) se basaron casi exclusivamente en niños.</p>
-    </div>
-
-    <div class="stats-row-data">
-      <div class="stat-card"><span class="stat-n-big" style="color:var(--purple)">4:1</span><span class="stat-lbl">ratio H:M en diagnósticos</span></div>
-      <div class="stat-card"><span class="stat-n-big" style="color:var(--red-bright)">50%</span><span class="stat-lbl">mujeres autistas sin diagnóstico formal</span></div>
-    </div>
-
-    <div class="chart-card-data">
-      <p class="chart-label-data">Proporción de diagnósticos por género — por década</p>
-      <div style="height:240px; position:relative;">
-        <canvas id="chartAutismo"></canvas>
-      </div>
-    </div>
-    <p class="data-source">Fuentes: Loomes, Hull & Mandy (2017) — Meta-análisis 139 estudios · CDC Autism Data 2022</p>
-  </div>
-</section>
-
-<!-- ══════════════════════════════════════════════════════
-     DATOS 4: ACCIDENTE DE AUTO
+     DATOS 3: ACCIDENTE DE AUTO
 ══════════════════════════════════════════════════════ -->
 <section class="data-section" id="data-accidente">
   <div class="data-inner">
@@ -329,12 +314,15 @@
       </div>
     </div>
 
-    <p class="description-data">Cada figura = una persona en un accidente de auto con cinturón puesto.<br>
-    Las figuras <span style="color:var(--red-bright)">rojas</span> sufrieron lesión grave o murieron.</p>
+    <p class="description-data">Cada bloque representa 1 persona de 100 en un accidente con cinturón puesto.</p>
+    <div class="waffle-control" data-waffle-control="accidente">
+      <span class="waffle-year" id="yearAccidente">2024</span>
+      <input class="waffle-slider" id="sliderAccidente" type="range" min="0" max="3" value="3" step="1">
+    </div>
     <div class="grids-wrapper-data">
       <div class="grid-column">
         <div class="col-label col-m">Hombres</div>
-        <div class="person-grid" id="maleGrid"></div>
+        <div class="waffle-grid" id="maleGrid"></div>
         <div class="grid-counter">
           <span class="big-count" id="maleCount" style="color:var(--gray-light)">0</span>
           <span class="count-label">de cada 100<br>lesión grave / muerte</span>
@@ -342,7 +330,7 @@
       </div>
       <div class="grid-column">
         <div class="col-label col-f">Mujeres</div>
-        <div class="person-grid" id="femaleGrid"></div>
+        <div class="waffle-grid" id="femaleGrid"></div>
         <div class="grid-counter">
           <span class="big-count" id="femaleCount" style="color:var(--red-bright)">0</span>
           <span class="count-label">de cada 100<br>lesión grave / muerte</span>
@@ -358,6 +346,34 @@
     </div>
     <button class="play-btn" onclick="runAnimAuto()">↺ REPETIR</button>
     <p class="data-source">Fuente: NHTSA Fatality Analysis Reporting System (FARS) 2024</p>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     DATOS 4: AUTISMO
+══════════════════════════════════════════════════════ -->
+<section class="data-section data-autismo-final" id="data-autismo">
+  <div class="data-inner">
+    <div class="data-header">
+      <span class="data-eyebrow">▸ DATOS / AUTISMO</span>
+      <span class="dato-mujer-tag">♀ MUJER</span>
+    </div>
+    <h2 class="data-title">El sesgo también aparece cuando una condición no se reconoce a tiempo</h2>
+    <div class="info-box">
+      <p>Le biais diagnostique rend certaines conditions moins visibles chez les femmes. Le coût n'est pas toujours une vie perdue immédiatement: c'est aussi du temps, du suivi et de la reconnaissance perdus.</p>
+    </div>
+    <div class="stats-row-data">
+      <div class="stat-card"><span class="stat-n-big" style="color:var(--purple)">4:1</span><span class="stat-lbl">ratio H:M en diagnósticos</span></div>
+      <div class="stat-card"><span class="stat-n-big" style="color:var(--red-bright)">50%</span><span class="stat-lbl">mujeres autistas sin diagnóstico formal</span></div>
+    </div>
+
+    <div class="chart-card-data">
+      <p class="chart-label-data">Proporción de diagnósticos por género — por década</p>
+      <div style="height:240px; position:relative;">
+        <canvas id="chartAutismo"></canvas>
+      </div>
+    </div>
+    <p class="data-source">Fuentes: Loomes, Hull & Mandy (2017) · CDC Autism Data 2022</p>
   </div>
 </section>
 
@@ -388,7 +404,7 @@
     </div>
 
     <div class="btn-group reveal-on-scroll delay-2">
-      <a href="#inicio" class="pixel-btn">▶ JUGAR DE NUEVO</a>
+      <button class="pixel-btn" id="btn-reset" type="button">▶ JUGAR DE NUEVO</button>
     </div>
     <div class="fin-text reveal-on-scroll delay-3">FIN.</div>
 

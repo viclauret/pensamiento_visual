@@ -91,6 +91,57 @@ const STATE = {
   // cuántos personajes encontró en el mini‑juego
   encontradosMinijuego: 0,
   minijuegoCompleto: false,
+  heartPlayer: null,
+  heartDiagnosedA: false,
+  heartDiagnosedB: false,
+  scrollLocked: false,
+};
+
+let lockedScrollY = 0;
+let chartAutismoInstance = null;
+
+const HEART_SCENARIOS = {
+  A: {
+    label: 'Jugador 1',
+    symptoms: ['Fatiga extrema', 'Náuseas', 'Falta de aire', 'Dolor de mandíbula o espalda'],
+    realState: 'EN RIESGO',
+    diagnosis: 'SANA',
+    message: 'Sus síntomas no fueron reconocidos como urgentes. No recibe seguimiento.',
+    tone: 'missed',
+  },
+  B: {
+    label: 'Jugador 2',
+    symptoms: ['Dolor en el pecho', 'Dolor en el brazo izquierdo', 'Falta de aire'],
+    realState: 'EN RIESGO',
+    diagnosis: 'ENFERMEDAD CARDÍACA',
+    message: 'Sus síntomas fueron reconocidos. Recibe atención y seguimiento.',
+    tone: 'treated',
+  },
+};
+
+const DATA_WAFFLE = {
+  efectos: {
+    years: [1968, 1980, 1995, 2010, 2026],
+    male: [24, 26, 28, 29, 30],
+    female: [35, 38, 41, 43, 45],
+    maleGrid: 'maleGridEfectos',
+    femaleGrid: 'femaleGridEfectos',
+    maleCount: 'maleCountEfectos',
+    femaleCount: 'femaleCountEfectos',
+    yearEl: 'yearEfectos',
+    slider: 'sliderEfectos',
+  },
+  accidente: {
+    years: [2000, 2008, 2016, 2024],
+    male: [20, 21, 22, 22],
+    female: [25, 26, 27, 28],
+    maleGrid: 'maleGrid',
+    femaleGrid: 'femaleGrid',
+    maleCount: 'maleCount',
+    femaleCount: 'femaleCount',
+    yearEl: 'yearAccidente',
+    slider: 'sliderAccidente',
+  },
 };
 
 /* ───────────────────────────────────────────────────────────
@@ -124,14 +175,23 @@ function initScrollReveal() {
   document.querySelectorAll('.reveal-on-scroll').forEach(el => io.observe(el));
 }
 
+function initDataSectionTriggers() {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      dispararEfecto(entry.target);
+      io.unobserve(entry.target);
+    });
+  }, { threshold: 0.25 });
+
+  document.querySelectorAll('.data-section').forEach(section => io.observe(section));
+}
+
 /**
  * Efectos secundarios cuando cada sección entra al viewport.
  * Aquí se conectan las animaciones y visualizaciones con el scroll narrativo.
  */
 function dispararEfecto(el) {
-  // Perder vida cuando aparece la alerta de corazón
-  if (el.id === 'heartLoss1') perderVida('A');
-
   // Perder vida en poción (el último elemento de esa escena)
   if (el.closest('#pocion') && el.classList.contains('corazon-perdido')) perderVida('A');
 
@@ -139,20 +199,17 @@ function dispararEfecto(el) {
   if (el.closest('#accidente') && el.classList.contains('corazon-perdido')) perderVida('A');
 
   // Iniciar visualizaciones al entrar a las secciones de datos
-  if (el.id === 'data-corazon') {
-    setTimeout(() => {
-      countUp(document.getElementById('count-h'), 63.2, 1, 900);
-      setTimeout(() => countUp(document.getElementById('count-f'), 25.9, 1, 900), 1000);
-    }, 400);
-  }
   if (el.id === 'data-efectos') {
-    buildGridPersonas('maleGridEfectos', 'femaleGridEfectos', 'maleCountEfectos', 'femaleCountEfectos', 30, 45);
+    buildWafflePair('efectos');
   }
   if (el.id === 'data-autismo') {
     setTimeout(buildChartAutismo, 300);
   }
+  if (el.id === 'autismo') {
+    setTimeout(buildChartAutismo, 300);
+  }
   if (el.id === 'data-accidente') {
-    buildGridPersonas('maleGrid', 'femaleGrid', 'maleCount', 'femaleCount', 22, 28);
+    buildWafflePair('accidente');
     setTimeout(() => {
       animateCar();
     }, 400);
@@ -176,6 +233,7 @@ function perderVida(jugador) {
   const key = `vidas${jugador}`;
   if (STATE[key] <= 0) return;
   STATE[key]--;
+  playDamageSound();
 
   const vidaEl = document.getElementById(`vida${jugador}`);
   const corazones = vidaEl ? vidaEl.querySelectorAll('.corazon') : [];
@@ -190,13 +248,55 @@ function perderVida(jugador) {
   // Animar el canvas con cara de daño
   const canvas = document.getElementById(`canvas${jugador}`);
   if (canvas) {
-    const colors = jugador === 'A' ? CHARS.A_NORMAL : CHARS.B_NORMAL;
+    const colors = getCharacterColors(jugador);
     drawCharacter(canvas, colors, true);
     canvas.classList.add('char-hurt-anim');
+    const personaje = document.getElementById(`personaje${jugador}`);
+    if (personaje) {
+      personaje.classList.add('personaje-hit');
+      spawnDamageTag(personaje);
+    }
     setTimeout(() => {
       drawCharacter(canvas, colors, false);
       canvas.classList.remove('char-hurt-anim');
+      if (personaje) personaje.classList.remove('personaje-hit');
     }, 700);
+  }
+}
+
+function getCharacterColors(jugador) {
+  if (jugador === 'A') return STATE.generoRevelado ? CHARS.A_FEMALE : CHARS.A_NORMAL;
+  return STATE.generoRevelado ? CHARS.B_MALE : CHARS.B_NORMAL;
+}
+
+function spawnDamageTag(personaje) {
+  const tag = document.createElement('span');
+  tag.className = 'damage-tag';
+  tag.textContent = '-1';
+  personaje.appendChild(tag);
+  setTimeout(() => tag.remove(), 900);
+}
+
+function playDamageSound() {
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return;
+  try {
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'square';
+    osc.frequency.setValueAtTime(180, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.16);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.06, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.2);
+    setTimeout(() => ctx.close(), 260);
+  } catch (err) {
+    // Le son est bonus: on ignore les navigateurs qui le bloquent.
   }
 }
 
@@ -252,7 +352,8 @@ function initPreguntaInteractiva() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting && !STATE.respondioPreg) {
-        bloquearScroll();
+        revealSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(bloquearScroll, 350);
       }
     });
   }, { threshold: 0.6 });
@@ -300,19 +401,106 @@ function initPreguntaInteractiva() {
 }
 
 function bloquearScroll() {
+  if (STATE.scrollLocked) return;
+  STATE.scrollLocked = true;
+  lockedScrollY = window.scrollY;
   document.body.style.overflow = 'hidden';
   document.body.style.position = 'fixed';
+  document.body.style.top = `-${lockedScrollY}px`;
   document.body.style.width = '100%';
 }
 
 function desbloquearScroll() {
+  if (!STATE.scrollLocked) return;
   document.body.style.overflow = '';
   document.body.style.position = '';
+  document.body.style.top = '';
   document.body.style.width = '';
+  STATE.scrollLocked = false;
+  const y = lockedScrollY;
+  lockedScrollY = 0;
+  window.scrollTo(0, y);
+}
+
+function lockScroll() {
+  bloquearScroll();
+}
+
+function unlockScroll() {
+  desbloquearScroll();
 }
 
 /* ───────────────────────────────────────────────────────────
-   8. MINI‑JUEGO DE AUTISMO
+   8. QUESTIONNAIRE CARDÍACO
+─────────────────────────────────────────────────────────── */
+
+function initHeartQuiz() {
+  const quiz = document.getElementById('heartQuiz');
+  const panel = document.getElementById('heartPanel');
+  const list = document.getElementById('symptomList');
+  const diagnosisCard = document.getElementById('diagnosisCard');
+  const diagnoseBtn = document.getElementById('btnDiagnoseHeart');
+  const heartLoss = document.getElementById('heartLoss1');
+  if (!quiz || !panel || !list || !diagnosisCard || !diagnoseBtn) return;
+
+  quiz.querySelectorAll('[data-heart-player]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const player = btn.dataset.heartPlayer;
+      STATE.heartPlayer = player;
+      quiz.querySelectorAll('[data-heart-player]').forEach(el => el.classList.toggle('active', el === btn));
+      renderHeartSymptoms(player);
+      panel.hidden = false;
+      diagnosisCard.hidden = true;
+      diagnoseBtn.hidden = false;
+    });
+  });
+
+  diagnoseBtn.addEventListener('click', () => {
+    if (!STATE.heartPlayer) return;
+    renderHeartDiagnosis(STATE.heartPlayer);
+    diagnoseBtn.hidden = true;
+    if (STATE.heartPlayer === 'A' && !STATE.heartDiagnosedA) {
+      STATE.heartDiagnosedA = true;
+      if (heartLoss) {
+        heartLoss.hidden = false;
+        heartLoss.classList.add('visible');
+      }
+      perderVida('A');
+    }
+    if (STATE.heartPlayer === 'B') STATE.heartDiagnosedB = true;
+  });
+}
+
+function renderHeartSymptoms(player) {
+  const list = document.getElementById('symptomList');
+  if (!list) return;
+  const scenario = HEART_SCENARIOS[player];
+  list.innerHTML = '';
+  scenario.symptoms.forEach(symptom => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'symptom-chip';
+    item.textContent = symptom;
+    item.addEventListener('click', () => item.classList.toggle('selected'));
+    list.appendChild(item);
+  });
+}
+
+function renderHeartDiagnosis(player) {
+  const card = document.getElementById('diagnosisCard');
+  if (!card) return;
+  const scenario = HEART_SCENARIOS[player];
+  card.className = `diagnosis-card ${scenario.tone}`;
+  card.innerHTML = `
+    <div class="diagnosis-row"><span>Estado real</span><strong>${scenario.realState}</strong></div>
+    <div class="diagnosis-row"><span>Diagnóstico recibido</span><strong>${scenario.diagnosis}</strong></div>
+    <p>${scenario.message}</p>
+  `;
+  card.hidden = false;
+}
+
+/* ───────────────────────────────────────────────────────────
+   9. MINI‑JUEGO DE AUTISMO
    Hay una grilla de íconos variados. Dos de ellos son los
    personajes. El usuario debe encontrarlos. Al completarlo,
    se muestra el dato sobre diagnóstico de autismo.
@@ -327,7 +515,6 @@ function initMinijuego() {
   const grid = document.getElementById('miniGrid');
   const resultado = document.getElementById('miniResultado');
   const statAutismo = document.getElementById('stat-autismo');
-  const heartLoss3 = document.getElementById('heartLoss3');
 
   if (!grid) return;
 
@@ -373,11 +560,6 @@ function initMinijuego() {
             if (statAutismo) {
               statAutismo.style.display = 'block';
               statAutismo.classList.add('reveal-on-scroll', 'visible');
-            }
-            if (heartLoss3) {
-              heartLoss3.style.display = 'flex';
-              heartLoss3.classList.add('reveal-on-scroll', 'visible');
-              perderVida('A');
             }
           }, 1200);
         }
@@ -481,6 +663,59 @@ function animarGrid(gridId, countId, injured) {
   });
 }
 
+function buildWafflePair(key) {
+  const cfg = DATA_WAFFLE[key];
+  if (!cfg) return;
+  const slider = document.getElementById(cfg.slider);
+  if (slider && !slider.dataset.bound) {
+    slider.dataset.bound = 'true';
+    slider.addEventListener('input', () => updateWafflePair(key, Number(slider.value), false));
+  }
+  updateWafflePair(key, slider ? Number(slider.value) : cfg.years.length - 1, true);
+}
+
+function updateWafflePair(key, index, animate = false) {
+  const cfg = DATA_WAFFLE[key];
+  if (!cfg) return;
+  const safeIndex = Math.max(0, Math.min(index, cfg.years.length - 1));
+  const yearEl = document.getElementById(cfg.yearEl);
+  if (yearEl) yearEl.textContent = cfg.years[safeIndex];
+  renderWaffle(cfg.maleGrid, cfg.maleCount, cfg.male[safeIndex], 'male', animate);
+  renderWaffle(cfg.femaleGrid, cfg.femaleCount, cfg.female[safeIndex], 'female', animate);
+}
+
+function renderWaffle(gridId, countId, affected, type, animate) {
+  const grid = document.getElementById(gridId);
+  const countEl = document.getElementById(countId);
+  if (!grid || !countEl) return;
+
+  grid.innerHTML = '';
+  countEl.textContent = '0';
+  for (let i = 0; i < 100; i++) {
+    const cell = document.createElement('span');
+    cell.className = `waffle-cell ${i < affected ? `affected ${type}` : ''}`;
+    if (animate) {
+      cell.style.transitionDelay = `${i * 8}ms`;
+      requestAnimationFrame(() => cell.classList.add('visible'));
+    } else {
+      cell.classList.add('visible');
+    }
+    grid.appendChild(cell);
+  }
+  if (animate) countToNumber(countEl, affected, 700);
+  else countEl.textContent = affected;
+}
+
+function countToNumber(el, target, ms) {
+  const t0 = performance.now();
+  (function tick(now) {
+    const p = Math.min((now - t0) / ms, 1);
+    el.textContent = Math.round(target * p);
+    if (p < 1) requestAnimationFrame(tick);
+    else el.textContent = target;
+  })(t0);
+}
+
 /* ───────────────────────────────────────────────────────────
    11. ANIMACIÓN DEL AUTO (accidente)
 ─────────────────────────────────────────────────────────── */
@@ -509,12 +744,11 @@ function runAnimAuto() {
   const fc = document.getElementById('femaleCount');
   if (mc) mc.textContent = '0';
   if (fc) fc.textContent = '0';
-  document.querySelectorAll('#maleGrid .person, #femaleGrid .person')
+  document.querySelectorAll('#maleGrid .waffle-cell, #femaleGrid .waffle-cell')
     .forEach(p => p.classList.remove('visible'));
 
   setTimeout(animateCar, 300);
-  setTimeout(() => animarGrid('maleGrid',   'maleCount',   22), 900);
-  setTimeout(() => animarGrid('femaleGrid', 'femaleCount', 28), 1150);
+  setTimeout(() => updateWafflePair('accidente', Number(document.getElementById('sliderAccidente')?.value || 3), true), 900);
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -536,7 +770,7 @@ function buildChartAutismo() {
   Chart.defaults.font.family = "'Press Start 2P', monospace";
   Chart.defaults.font.size   = 7;
 
-  new Chart(canvas, {
+  chartAutismoInstance = new Chart(canvas, {
     type: 'bar',
     data: {
       labels,
@@ -585,6 +819,17 @@ function initBtnStart() {
   });
 }
 
+function initBtnReset() {
+  const btn = document.getElementById('btn-reset');
+  if (!btn) return;
+  btn.addEventListener('click', resetGame);
+}
+
+function resetGame() {
+  window.location.href = `${window.location.pathname}#inicio`;
+  window.location.reload();
+}
+
 /* ───────────────────────────────────────────────────────────
    14. INIT — se ejecuta cuando carga el DOM
 ─────────────────────────────────────────────────────────── */
@@ -599,9 +844,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Iniciar sistemas
   initScrollReveal();
+  initDataSectionTriggers();
   initPreguntaInteractiva();
+  initHeartQuiz();
   initMinijuego();
   initBtnStart();
+  initBtnReset();
 
   // Barra de progreso
   window.addEventListener('scroll', actualizarProgreso, { passive: true });
