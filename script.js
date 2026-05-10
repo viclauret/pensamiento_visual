@@ -99,6 +99,7 @@ const STATE = {
 
 let lockedScrollY = 0;
 let chartAutismoInstance = null;
+let damageAudioCtx = null;
 
 const HEART_SCENARIOS = {
   A: {
@@ -281,7 +282,9 @@ function playDamageSound() {
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   if (!AudioCtx) return;
   try {
-    const ctx = new AudioCtx();
+    const ctx = damageAudioCtx || new AudioCtx();
+    damageAudioCtx = ctx;
+    if (ctx.state === 'suspended') ctx.resume();
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.type = 'square';
@@ -294,10 +297,24 @@ function playDamageSound() {
     gain.connect(ctx.destination);
     osc.start();
     osc.stop(ctx.currentTime + 0.2);
-    setTimeout(() => ctx.close(), 260);
   } catch (err) {
     // Le son est bonus: on ignore les navigateurs qui le bloquent.
   }
+}
+
+function initDamageAudio() {
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  if (!AudioCtx) return;
+  const unlock = () => {
+    if (!damageAudioCtx) damageAudioCtx = new AudioCtx();
+    if (damageAudioCtx.state === 'suspended') damageAudioCtx.resume();
+    window.removeEventListener('pointerdown', unlock);
+    window.removeEventListener('keydown', unlock);
+    window.removeEventListener('touchstart', unlock);
+  };
+  window.addEventListener('pointerdown', unlock, { once: true });
+  window.addEventListener('keydown', unlock, { once: true });
+  window.addEventListener('touchstart', unlock, { once: true });
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -336,7 +353,7 @@ function revelarGenero() {
 
 /* ───────────────────────────────────────────────────────────
    7. PREGUNTA INTERACTIVA
-   Bloquea el scroll hasta que el usuario elija una respuesta.
+   Muestra feedback en el lugar y deja el scroll natural.
 ─────────────────────────────────────────────────────────── */
 
 function initPreguntaInteractiva() {
@@ -345,19 +362,8 @@ function initPreguntaInteractiva() {
   const feedbackTexto = document.getElementById('feedback-texto');
   const btnContinuar = document.getElementById('btn-continuar');
 
-  // Al entrar a la escena de reveal, bloqueamos el scroll
   const revealSection = document.getElementById('reveal');
   if (!revealSection) return;
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting && !STATE.respondioPreg) {
-        revealSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(bloquearScroll, 350);
-      }
-    });
-  }, { threshold: 0.6 });
-  observer.observe(revealSection);
 
   opciones.forEach(opcion => {
     opcion.addEventListener('click', () => {
@@ -386,15 +392,15 @@ function initPreguntaInteractiva() {
       }
       feedbackTexto.textContent = msg;
       feedbackBox.style.display = 'block';
+      STATE.respondioPreg = true;
 
     });
   });
 
-  // El botón "Continuar" desbloquea el scroll y lleva a la siguiente escena
+  // El botón "Continuar" lleva a la siguiente escena
   if (btnContinuar) {
     btnContinuar.addEventListener('click', () => {
       STATE.respondioPreg = true;
-      desbloquearScroll();
       document.getElementById('gender-reveal').scrollIntoView({ behavior: 'smooth' });
     });
   }
@@ -826,8 +832,7 @@ function initBtnReset() {
 }
 
 function resetGame() {
-  window.location.href = `${window.location.pathname}#inicio`;
-  window.location.reload();
+  window.location.replace(`${window.location.pathname}?reset=${Date.now()}#inicio`);
 }
 
 /* ───────────────────────────────────────────────────────────
@@ -850,6 +855,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initMinijuego();
   initBtnStart();
   initBtnReset();
+  initDamageAudio();
 
   // Barra de progreso
   window.addEventListener('scroll', actualizarProgreso, { passive: true });
