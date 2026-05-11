@@ -6,7 +6,7 @@
   <title>¿Cuestión de Suerte?</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-  <link rel="stylesheet" href="estilos.css">
+  <link rel="stylesheet" href="estilos.css?v=20260510-6">
 </head>
 <body>
 
@@ -23,14 +23,14 @@
     <div class="vida-bar" id="vidaA">
       <span class="corazon">♥</span><span class="corazon">♥</span><span class="corazon">♥</span><span class="corazon">♥</span><span class="corazon">♥</span>
     </div>
-    <span class="label-personaje label-j1">JUGADOR 1</span>
+    <span class="label-personaje label-j1">ARIEL</span>
   </div>
   <div id="personajeB" class="personaje">
     <canvas class="char-canvas" id="canvasB" width="40" height="60"></canvas>
     <div class="vida-bar" id="vidaB">
       <span class="corazon corazon-j2">♥</span><span class="corazon corazon-j2">♥</span><span class="corazon corazon-j2">♥</span><span class="corazon corazon-j2">♥</span><span class="corazon corazon-j2">♥</span>
     </div>
-    <span class="label-personaje label-j2">JUGADOR 2</span>
+    <span class="label-personaje label-j2">ALEX</span>
   </div>
 </div>
 
@@ -41,7 +41,7 @@
   <div class="pixel-sky"></div>
   <div class="pixel-title-box reveal-on-scroll">
     <h1 class="pixel-title">¿Cuestión<br>de Suerte?</h1>
-    <button class="start-btn blink" id="btn-start">▶ START</button>
+    <button class="start-btn blink" id="btn-start">▶ EMPEZAR</button>
     <p class="scroll-hint">SCROLL HACIA ABAJO ↓</p>
   </div>
   <div class="pixel-ground"></div>
@@ -54,7 +54,7 @@
   <div class="escena-content">
     <div class="pixel-sign reveal-on-scroll">
       <p class="sign-tag">NUESTRA HISTORIA</p>
-      <p>Dos personas recorren el mismo camino enfrentando situaciones cotidianas.</p>
+      <p>Dos personas, Alex y Ariel, recorren el mismo camino enfrentando situaciones cotidianas.</p>
       <p style="margin-top:12px">A medida que avanzan, se enfrentan a distintos <strong>eventos relacionados con su salud y riesgo.</strong></p>
     </div>
   </div>
@@ -69,31 +69,35 @@
     <div class="evento-icono reveal-on-scroll">❤️</div>
     <h2 class="pixel-h2 reveal-on-scroll">ENFERMEDAD<br>CARDÍACA</h2>
     <div class="stat-box reveal-on-scroll delay-1">
-      <p>Ambos jugadores tienen síntomas cardíacos. Elige a quién examinar.</p>
+      <p>Ariel y Alex tienen síntomas cardíacos. Compara cómo responde el sistema ante cada caso.</p>
     </div>
 
     <div class="heart-quiz reveal-on-scroll delay-2" id="heartQuiz">
-      <div class="heart-choice-row" id="heartChoiceRow">
-        <button class="heart-player-card" data-heart-player="A">
-          <span class="heart-player-label txt-j1">JUGADOR 1</span>
-          <span class="heart-player-action">Examinar</span>
-        </button>
-        <button class="heart-player-card" data-heart-player="B">
-          <span class="heart-player-label txt-j2">JUGADOR 2</span>
-          <span class="heart-player-action">Examinar</span>
-        </button>
+      <div class="heart-test-card" data-heart-test="A">
+        <div class="heart-test-header">
+          <span class="heart-player-label txt-j1">ARIEL</span>
+          <span class="heart-player-action">Caso 1</span>
+        </div>
+        <p class="heart-question">¿Qué síntomas presenta Ariel?</p>
+        <div class="symptom-list" id="symptomListA"></div>
+        <button class="pixel-btn-small" data-diagnose-heart="A">DIAGNOSTICAR A ARIEL</button>
+        <div class="diagnosis-card" id="diagnosisCardA" hidden></div>
       </div>
 
-      <div class="heart-panel" id="heartPanel" hidden>
-        <p class="heart-question" id="heartQuestion">¿Cuáles de estos síntomas presenta este jugador?</p>
-        <div class="symptom-list" id="symptomList"></div>
-        <button class="pixel-btn-small" id="btnDiagnoseHeart">DIAGNOSTICAR</button>
-        <div class="diagnosis-card" id="diagnosisCard" hidden></div>
+      <div class="heart-test-card" data-heart-test="B">
+        <div class="heart-test-header">
+          <span class="heart-player-label txt-j2">ALEX</span>
+          <span class="heart-player-action">Caso 2</span>
+        </div>
+        <p class="heart-question">¿Qué síntomas presenta Alex?</p>
+        <div class="symptom-list" id="symptomListB"></div>
+        <button class="pixel-btn-small" data-diagnose-heart="B">DIAGNOSTICAR A ALEX</button>
+        <div class="diagnosis-card" id="diagnosisCardB" hidden></div>
       </div>
     </div>
 
     <div class="corazon-perdido reveal-on-scroll delay-3" id="heartLoss1" hidden>
-      <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Jugador 1)</span>
+      <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Ariel)</span>
     </div>
   </div>
   <div class="pixel-ground"></div>
@@ -107,44 +111,21 @@
     <div class="evento-icono reveal-on-scroll">💊</div>
     <h2 class="pixel-h2 reveal-on-scroll">POCIÓN<br>DE VIDA</h2>
     <div class="stat-box reveal-on-scroll delay-1">
-      <p>Ambos jugadores toman un medicamento recetado.<br>El <span class="txt-j1">Jugador 1</span> se siente mal...</p>
+      <p>Ambos jugadores toman un medicamento recetado.<br><span class="txt-j1">Ariel</span> se siente mal...</p>
     </div>
     <div class="stat-box stat-box-alert reveal-on-scroll delay-2">
       <p><span class="highlight">Efectos adversos —</span><br>
-      El <span class="txt-j1">Jugador 1</span> tiene un <span class="highlight">+50% de probabilidad</span> de sufrir efectos adversos por medicamentos/pociones.</p>
+      <span class="txt-j1">Ariel</span> tiene un <span class="highlight">+50% de probabilidad</span> de sufrir efectos adversos por medicamentos/pociones.</p>
     </div>
     <div class="corazon-perdido reveal-on-scroll delay-3">
-      <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Jugador 1)</span>
+      <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Ariel)</span>
     </div>
   </div>
   <div class="pixel-ground"></div>
 </section>
 
 <!-- ══════════════════════════════════════════════════════
-     ESCENA 5: SUCESO — AUTISMO (mini-juego)
-══════════════════════════════════════════════════════ -->
-<section class="escena escena-autismo" id="autismo">
-  <div class="escena-content">
-    <div class="evento-icono reveal-on-scroll">🧠</div>
-    <div class="game-badge reveal-on-scroll">🎮 ES MOMENTO DE UN JUEGO</div>
-    <h2 class="pixel-h2 reveal-on-scroll">¡ENCUENTRA<br>A LOS JUGADORES!</h2>
-
-    <div class="minigame-area reveal-on-scroll delay-1" id="minijuego">
-      <p class="mini-instruccion">Toca a los dos jugadores entre los íconos</p>
-      <div class="mini-grid" id="miniGrid"></div>
-      <p class="mini-resultado" id="miniResultado"></p>
-    </div>
-
-    <div class="stat-box stat-box-alert reveal-on-scroll delay-2" id="stat-autismo" style="display:none">
-      <p>Fue <span class="highlight">4 veces más difícil</span> diagnosticar con autismo al <span class="txt-j1">Jugador 1</span> que al <span class="txt-j2">Jugador 2</span>.</p>
-      <p class="sub-text">Aquí no pierde una vida: pierde tiempo, seguimiento y reconocimiento.</p>
-    </div>
-  </div>
-  <div class="pixel-ground"></div>
-</section>
-
-<!-- ══════════════════════════════════════════════════════
-     ESCENA 6: SUCESO — ACCIDENTE DE AUTO
+     ESCENA 5: SUCESO — ACCIDENTE DE AUTO
 ══════════════════════════════════════════════════════ -->
 <section class="escena escena-accidente" id="accidente">
   <div class="escena-content">
@@ -154,10 +135,68 @@
       <p>Ambos jugadores sufren un accidente mientras conducen, con el cinturón puesto.</p>
     </div>
     <div class="stat-box stat-box-alert reveal-on-scroll delay-2">
-      <p>El <span class="txt-j1">Jugador 1</span> tiene <span class="highlight">27% más</span> probabilidades de sufrir una <span class="highlight">lesión grave o morir</span> en un choque de auto.</p>
+      <p><span class="txt-j1">Ariel</span> tiene <span class="highlight">27% más</span> probabilidades de sufrir una <span class="highlight">lesión grave o morir</span> en un choque de auto.</p>
     </div>
     <div class="corazon-perdido reveal-on-scroll delay-3">
-      <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Jugador 1)</span>
+      <span class="corazon perdido">♥</span><span class="txt-small">–1 vida (Ariel)</span>
+    </div>
+  </div>
+  <div class="pixel-ground"></div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════
+     ESCENA 6: SUCESO — AUTISMO (mini-juego)
+══════════════════════════════════════════════════════ -->
+<section class="escena escena-autismo" id="autismo">
+  <div class="escena-content">
+    <div class="evento-icono reveal-on-scroll">🧠</div>
+    <div class="game-badge reveal-on-scroll">🎮 ES MOMENTO DE UN JUEGO</div>
+    <h2 class="pixel-h2 reveal-on-scroll">¡ENCUENTRA<br>A LOS JUGADORES!</h2>
+
+    <div class="minigame-area reveal-on-scroll delay-1" id="minijuego">
+      <div class="autism-scene-card" aria-label="Escena visual con varios objetos y dos jugadores">
+        <span class="scene-obj obj-1">🐌</span>
+        <span class="scene-obj obj-2">⭐</span>
+        <span class="scene-obj obj-3">🌲</span>
+        <span class="scene-obj obj-4">⚔️</span>
+        <span class="scene-obj obj-5">🌻</span>
+        <span class="scene-obj obj-6">🏆</span>
+        <span class="scene-obj obj-7">🦆</span>
+        <span class="scene-obj obj-8">🍄</span>
+        <span class="scene-obj obj-9">⭐</span>
+        <span class="scene-obj obj-10">🐕</span>
+        <span class="scene-obj obj-11">❤️</span>
+        <span class="scene-obj obj-12">⭐</span>
+        <span class="scene-obj blue-noise blue-1">🔷</span>
+        <span class="scene-obj blue-noise blue-2">💙</span>
+        <span class="scene-obj blue-noise blue-3">🌀</span>
+        <span class="scene-obj blue-noise blue-4">🧊</span>
+        <span class="scene-obj blue-noise blue-5">🔵</span>
+        <span class="scene-obj blue-noise blue-6">💎</span>
+        <button class="scene-player scene-ariel" type="button" data-autism-choice="A" aria-label="Ariel en la escena">
+          <span class="tiny-avatar avatar-ariel"></span>
+        </button>
+        <button class="scene-player scene-alex" type="button" data-autism-choice="B" aria-label="Alex en la escena">
+          <span class="tiny-avatar avatar-alex"></span>
+        </button>
+      </div>
+      <p class="mini-instruccion">¿Cuál encontraste primero?</p>
+      <div class="autism-choice-row">
+        <button class="autism-choice" type="button" data-autism-choice="A">
+          <span class="tiny-avatar avatar-ariel"></span>
+          <span>ARIEL</span>
+        </button>
+        <button class="autism-choice" type="button" data-autism-choice="B">
+          <span class="tiny-avatar avatar-alex"></span>
+          <span>ALEX</span>
+        </button>
+      </div>
+      <p class="mini-resultado" id="miniResultado"></p>
+    </div>
+
+    <div class="stat-box stat-box-alert reveal-on-scroll delay-2" id="stat-autismo" style="display:none">
+      <p>Fue <span class="highlight">4 veces más difícil</span> diagnosticar con autismo a <span class="txt-j1">Ariel</span> que a <span class="txt-j2">Alex</span>.</p>
+      <p class="sub-text">Aquí no pierde una vida: pierde tiempo, seguimiento y reconocimiento.</p>
     </div>
   </div>
   <div class="pixel-ground"></div>
@@ -169,7 +208,7 @@
 <section class="escena escena-reveal" id="reveal">
   <div class="escena-content">
     <h2 class="pixel-h2 reveal-on-scroll">Ambos jugadores<br>se ven similares...</h2>
-    <p class="pregunta reveal-on-scroll delay-1">¿Por qué al <span class="txt-j1">Jugador 1</span><br>le va peor?</p>
+    <p class="pregunta reveal-on-scroll delay-1">¿Por qué a <span class="txt-j1">Ariel</span><br>le va peor?</p>
 
     <!-- Opciones interactivas — scroll bloqueado hasta responder -->
     <div class="opciones reveal-on-scroll delay-2" id="opciones-container">
@@ -197,7 +236,7 @@
     <div class="gender-card reveal-on-scroll delay-1" id="gender-card">
       <div class="gender-icon">♀</div>
       <p class="gender-text">...su <strong>género</strong></p>
-      <p class="gender-sub">El Jugador 1 era una <strong>MUJER</strong></p>
+      <p class="gender-sub">Ariel era una <strong>MUJER</strong></p>
     </div>
     <div class="no-suerte reveal-on-scroll delay-2">
       <p class="no-suerte-texto">No es suerte,</p>
@@ -421,7 +460,7 @@
     <!-- Jugador genérico (antes del reveal) -->
     <g id="char-generic-blue">
       <!-- cabeza -->
-      <rect x="10" y="2"  width="20" height="18" rx="2" fill="#9ca3af"/>
+      <rect x="10" y="2"  width="20" height="18" rx="2" fill="#fbbf24"/>
       <rect x="14" y="8"  width="4"  height="4"  fill="#1f2937"/>
       <rect x="22" y="8"  width="4"  height="4"  fill="#1f2937"/>
       <rect x="14" y="14" width="12" height="2"  fill="#6b7280"/>
@@ -437,7 +476,7 @@
       <rect x="9"  y="52" width="10" height="6"  rx="1" fill="#111827"/>
       <rect x="21" y="52" width="10" height="6"  rx="1" fill="#111827"/>
     </g>
-    <!-- Jugador 1 revelado — MUJER (ropa lila/rosa) -->
+    <!-- Ariel revelada — MUJER (mantiene su ropa original) -->
     <g id="char-female">
       <rect x="10" y="2"  width="20" height="18" rx="2" fill="#fbbf24"/>
       <!-- pelo largo -->
@@ -449,20 +488,20 @@
       <rect x="22" y="8"  width="4"  height="4"  fill="#1f2937"/>
       <!-- boca -->
       <rect x="15" y="15" width="10" height="2"  fill="#ef4444"/>
-      <!-- body (vestido) -->
-      <rect x="6"  y="22" width="28" height="20" rx="2" fill="#c026d3"/>
+      <!-- body -->
+      <rect x="6"  y="22" width="28" height="20" rx="2" fill="#3b82f6"/>
       <!-- arms -->
-      <rect x="0"  y="22" width="6"  height="10" rx="1" fill="#c026d3"/>
-      <rect x="34" y="22" width="6"  height="10" rx="1" fill="#c026d3"/>
+      <rect x="0"  y="22" width="6"  height="10" rx="1" fill="#3b82f6"/>
+      <rect x="34" y="22" width="6"  height="10" rx="1" fill="#3b82f6"/>
       <!-- legs -->
       <rect x="10" y="42" width="8"  height="12" rx="1" fill="#7c3aed"/>
       <rect x="22" y="42" width="8"  height="12" rx="1" fill="#7c3aed"/>
       <rect x="9"  y="52" width="10" height="6"  rx="1" fill="#111827"/>
       <rect x="21" y="52" width="10" height="6"  rx="1" fill="#111827"/>
     </g>
-    <!-- Jugador 2 revelado — HOMBRE (ropa verde) -->
+    <!-- Alex revelado — HOMBRE (ropa verde) -->
     <g id="char-male">
-      <rect x="10" y="2"  width="20" height="18" rx="2" fill="#9ca3af"/>
+      <rect x="10" y="2"  width="20" height="18" rx="2" fill="#fbbf24"/>
       <rect x="14" y="8"  width="4"  height="4"  fill="#1f2937"/>
       <rect x="22" y="8"  width="4"  height="4"  fill="#1f2937"/>
       <rect x="14" y="14" width="12" height="2"  fill="#6b7280"/>
@@ -476,7 +515,7 @@
     </g>
     <!-- versión dañada jugador 1 -->
     <g id="char-hurt">
-      <rect x="10" y="2"  width="20" height="18" rx="2" fill="#9ca3af"/>
+      <rect x="10" y="2"  width="20" height="18" rx="2" fill="#fbbf24"/>
       <rect x="12" y="8"  width="5"  height="3"  fill="#1f2937" transform="rotate(-15 14 10)"/>
       <rect x="23" y="8"  width="5"  height="3"  fill="#1f2937" transform="rotate(15 25 10)"/>
       <rect x="14" y="14" width="12" height="2"  fill="#6b7280" transform="rotate(5 20 15)"/>
@@ -493,6 +532,6 @@
   </defs>
 </svg>
 
-<script src="script.js"></script>
+<script src="script.js?v=20260510-6"></script>
 </body>
 </html>

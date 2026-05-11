@@ -13,10 +13,10 @@
 const CHARS = {
   // Jugador 1 y 2 antes del reveal (neutros, distintos colores de ropa)
   A_NORMAL:  { skin:'#fbbf24', hair:'#7c3aed', shirt:'#3b82f6', pants:'#1d4ed8', shoe:'#111827' },
-  B_NORMAL:  { skin:'#9ca3af', hair:'#4b5563', shirt:'#16a34a', pants:'#15803d', shoe:'#111827' },
+  B_NORMAL:  { skin:'#fbbf24', hair:'#7c3aed', shirt:'#16a34a', pants:'#15803d', shoe:'#111827' },
   // Después del reveal
-  A_FEMALE:  { skin:'#fbbf24', hair:'#7c3aed', shirt:'#c026d3', pants:'#7c3aed', shoe:'#111827' },
-  B_MALE:    { skin:'#d1d5db', hair:'#374151', shirt:'#16a34a', pants:'#15803d', shoe:'#111827' },
+  A_FEMALE:  { skin:'#fbbf24', hair:'#7c3aed', shirt:'#3b82f6', pants:'#1d4ed8', shoe:'#111827' },
+  B_MALE:    { skin:'#fbbf24', hair:'#7c3aed', shirt:'#16a34a', pants:'#15803d', shoe:'#111827' },
 };
 
 /**
@@ -103,7 +103,7 @@ let damageAudioCtx = null;
 
 const HEART_SCENARIOS = {
   A: {
-    label: 'Jugador 1',
+    label: 'Ariel',
     symptoms: ['Fatiga extrema', 'Náuseas', 'Falta de aire', 'Dolor de mandíbula o espalda'],
     realState: 'EN RIESGO',
     diagnosis: 'SANA',
@@ -111,7 +111,7 @@ const HEART_SCENARIOS = {
     tone: 'missed',
   },
   B: {
-    label: 'Jugador 2',
+    label: 'Alex',
     symptoms: ['Dolor en el pecho', 'Dolor en el brazo izquierdo', 'Falta de aire'],
     realState: 'EN RIESGO',
     diagnosis: 'ENFERMEDAD CARDÍACA',
@@ -330,19 +330,20 @@ function revelarGenero() {
   const canvasA = document.getElementById('canvasA');
   const canvasB = document.getElementById('canvasB');
 
-  // Redibujar con apariencia de género
-  if (canvasA) drawCharacter(canvasA, CHARS.A_FEMALE);
-  if (canvasB) drawCharacter(canvasB, CHARS.B_MALE);
+  // No cambiamos la apariencia visual de los jugadores en el reveal:
+  // solo se actualizan las etiquetas para evitar que Ariel "se vuelva rosa".
+  if (canvasA) drawCharacter(canvasA, CHARS.A_NORMAL);
+  if (canvasB) drawCharacter(canvasB, CHARS.B_NORMAL);
 
   // Cambiar etiquetas de los personajes
   const lblA = document.querySelector('.label-j1');
   const lblB = document.querySelector('.label-j2');
   if (lblA) {
-    lblA.textContent = 'MUJER';
-    lblA.style.color = '#c026d3';
+      lblA.textContent = 'ARIEL · MUJER';
+      lblA.style.color = '#3b82f6';
   }
   if (lblB) {
-    lblB.textContent = 'HOMBRE';
+    lblB.textContent = 'ALEX · HOMBRE';
     lblB.style.color = '#16a34a';
   }
 
@@ -369,8 +370,6 @@ function initPreguntaInteractiva() {
     opcion.addEventListener('click', () => {
       if (STATE.respondioPreg) return;
 
-      const valor = opcion.dataset.valor;
-
       // Marcar cada opción como correcta o incorrecta
       opciones.forEach(op => {
         op.disabled = true;
@@ -381,16 +380,7 @@ function initPreguntaInteractiva() {
         }
       });
 
-      // Mostrar feedback según lo que eligió
-      let msg = '';
-      if (valor === 'genero') {
-        msg = '✓ Correcto. La única diferencia entre ambos jugadores era su género. Los sesgos estructurales afectan de manera desigual a hombres y mujeres.';
-      } else if (valor === 'edad') {
-        msg = '✗ No es la edad. Ambos jugadores tienen la misma edad. La diferencia que marcó todo fue su género.';
-      } else {
-        msg = '✗ No es la suerte. No fue azar, fue sesgo. Los sesgos estructurales de género explican por qué al Jugador 1 le fue consistentemente peor.';
-      }
-      feedbackTexto.textContent = msg;
+      feedbackTexto.textContent = '';
       feedbackBox.style.display = 'block';
       STATE.respondioPreg = true;
 
@@ -441,44 +431,31 @@ function unlockScroll() {
 ─────────────────────────────────────────────────────────── */
 
 function initHeartQuiz() {
-  const quiz = document.getElementById('heartQuiz');
-  const panel = document.getElementById('heartPanel');
-  const list = document.getElementById('symptomList');
-  const diagnosisCard = document.getElementById('diagnosisCard');
-  const diagnoseBtn = document.getElementById('btnDiagnoseHeart');
   const heartLoss = document.getElementById('heartLoss1');
-  if (!quiz || !panel || !list || !diagnosisCard || !diagnoseBtn) return;
+  renderHeartSymptoms('A');
+  renderHeartSymptoms('B');
 
-  quiz.querySelectorAll('[data-heart-player]').forEach(btn => {
+  document.querySelectorAll('[data-diagnose-heart]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const player = btn.dataset.heartPlayer;
-      STATE.heartPlayer = player;
-      quiz.querySelectorAll('[data-heart-player]').forEach(el => el.classList.toggle('active', el === btn));
-      renderHeartSymptoms(player);
-      panel.hidden = false;
-      diagnosisCard.hidden = true;
-      diagnoseBtn.hidden = false;
-    });
-  });
+      const player = btn.dataset.diagnoseHeart;
+      renderHeartDiagnosis(player);
+      btn.hidden = true;
 
-  diagnoseBtn.addEventListener('click', () => {
-    if (!STATE.heartPlayer) return;
-    renderHeartDiagnosis(STATE.heartPlayer);
-    diagnoseBtn.hidden = true;
-    if (STATE.heartPlayer === 'A' && !STATE.heartDiagnosedA) {
-      STATE.heartDiagnosedA = true;
-      if (heartLoss) {
-        heartLoss.hidden = false;
-        heartLoss.classList.add('visible');
+      if (player === 'A' && !STATE.heartDiagnosedA) {
+        STATE.heartDiagnosedA = true;
+        if (heartLoss) {
+          heartLoss.hidden = false;
+          heartLoss.classList.add('visible');
+        }
+        perderVida('A');
       }
-      perderVida('A');
-    }
-    if (STATE.heartPlayer === 'B') STATE.heartDiagnosedB = true;
+      if (player === 'B') STATE.heartDiagnosedB = true;
+    });
   });
 }
 
 function renderHeartSymptoms(player) {
-  const list = document.getElementById('symptomList');
+  const list = document.getElementById(`symptomList${player}`);
   if (!list) return;
   const scenario = HEART_SCENARIOS[player];
   list.innerHTML = '';
@@ -493,7 +470,7 @@ function renderHeartSymptoms(player) {
 }
 
 function renderHeartDiagnosis(player) {
-  const card = document.getElementById('diagnosisCard');
+  const card = document.getElementById(`diagnosisCard${player}`);
   if (!card) return;
   const scenario = HEART_SCENARIOS[player];
   card.className = `diagnosis-card ${scenario.tone}`;
@@ -518,65 +495,35 @@ const ICONO_J1 = '🧑'; // jugador 1
 const ICONO_J2 = '🧒'; // jugador 2
 
 function initMinijuego() {
-  const grid = document.getElementById('miniGrid');
   const resultado = document.getElementById('miniResultado');
   const statAutismo = document.getElementById('stat-autismo');
+  const choices = document.querySelectorAll('[data-autism-choice]');
+  if (!choices.length) return;
 
-  if (!grid) return;
-
-  // Mezclar íconos: 15 falsos + 2 jugadores = 17 ítems
-  let items = [...ICONOS_FALSOS, ICONO_J1, ICONO_J2];
-  // Mezcla aleatoria (Fisher-Yates)
-  for (let i = items.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [items[i], items[j]] = [items[j], items[i]];
-  }
-
-  items.forEach(icono => {
-    const div = document.createElement('div');
-    div.className = 'mini-item';
-    div.textContent = icono;
-
-    const esJugador = icono === ICONO_J1 || icono === ICONO_J2;
-
-    div.addEventListener('click', () => {
+  choices.forEach(choice => {
+    choice.addEventListener('click', () => {
       if (STATE.minijuegoCompleto) return;
-      if (div.classList.contains('encontrado') || div.classList.contains('bloqueado')) return;
+      const player = choice.dataset.autismChoice;
+      STATE.minijuegoCompleto = true;
 
-      if (esJugador) {
-        div.classList.add('encontrado');
-        STATE.encontradosMinijuego++;
+      document.querySelectorAll('[data-autism-choice]').forEach(el => {
+        el.classList.toggle('selected', el.dataset.autismChoice === player);
+        if (el.tagName === 'BUTTON') el.disabled = true;
+      });
 
-        if (STATE.encontradosMinijuego === 1) {
-          resultado.textContent = `¡Encontraste al primer jugador! Busca al otro...`;
-        }
-
-        if (STATE.encontradosMinijuego >= 2) {
-          // Juego completo
-          STATE.minijuegoCompleto = true;
-          resultado.textContent = '¡Los encontraste a los dos! Pero, ¿qué tan fácil fue?';
-
-          // Bloquear los demás
-          grid.querySelectorAll('.mini-item:not(.encontrado)').forEach(el => {
-            el.classList.add('bloqueado');
-          });
-
-          // Mostrar el dato después de un momento
-          setTimeout(() => {
-            if (statAutismo) {
-              statAutismo.style.display = 'block';
-              statAutismo.classList.add('reveal-on-scroll', 'visible');
-            }
-          }, 1200);
-        }
-      } else {
-        // Clic en ícono equivocado: pequeño shake visual
-        div.style.transform = 'scale(0.85)';
-        setTimeout(() => { div.style.transform = ''; }, 200);
+      if (resultado) {
+        resultado.textContent = player === 'B'
+          ? 'Elegiste a Alex primero. Este juego muestra cómo algunos perfiles se vuelven más visibles que otros.'
+          : 'Elegiste a Ariel primero. Aun así, muchas veces perfiles como el suyo tardan más en ser reconocidos.';
       }
-    });
 
-    grid.appendChild(div);
+      setTimeout(() => {
+        if (statAutismo) {
+          statAutismo.style.display = 'block';
+          statAutismo.classList.add('reveal-on-scroll', 'visible');
+        }
+      }, 500);
+    });
   });
 }
 
